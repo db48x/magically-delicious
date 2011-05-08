@@ -74,19 +74,18 @@ while true; do
   #fi
 
   modified=${userid/\./+}
-  path=data/users/${modified:0:1}/${modified:1:1}/${modified:2:1}/$modified
+  path=data/users/${modified:0:1}/${modified:1:1}/${modified:2:1}
   mkdir -p $path
   echo ID is $userid saving to $path
-  $cannibal "$userid" > $path/$modified.xml
-  
-  #file="$SEPDIB/$SECDIB/$THIRDIB/$userid/$userid.flv"
+  file=$path/$modified.xml
+  $cannibal "$userid" | tee $file | grep "<id>" | sed -e 's/.*<id>\(.*\)<\/id>/\1/' | while read mark; do
+  #grep "<id>" test.xml | sed -e 's/.*<id>\(.*\)<\/id>/\1/' | while read mark; do
+    tagpath=data/tags/${mark:0:2}/${mark:2:2}/${mark:4:2}
+    mkdir -p $tagpath
+    ./tagsaretasty.sh $mark > $tagpath/$mark.xml
+  done;
+
   #if [ -f $file ]; then
-  #  hash=`sha1sum "$file"|awk '{print $1}'`
-  #  size=`du -b "$file"|awk '{print $1}'`
-  #  echo "Hash is $hash"
-  #  echo "USERID is $userid"
-  #  echo "USERNAME is $USERNAME"
-  #  echo "Size is $size"
   #  tellserver finishVid $userid $size $hash
   #else
   #  warning "Failed to download anything for $userid."
